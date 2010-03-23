@@ -87,6 +87,14 @@ var sharedErrorLoggerInstance = nil;
     return YES;
 }
 
+- (void) startFeedbackProcess {
+
+	var reportWindow = [[LPCrashReporterReportWindow alloc] initWithContentRect:CGRectMake(0,0,460,309) styleMask:CPTitledWindowMask | CPResizableWindowMask];
+
+        [CPApp runModalForWindow:reportWindow];
+
+}
+
 /*
     CPAlert delegate methods:
 */
@@ -102,13 +110,21 @@ var sharedErrorLoggerInstance = nil;
 	        break;
         
         case 0: // Send report
-                var reportWindow = [[LPCrashReporterReportWindow alloc] initWithContentRect:CGRectMake(0,0,460,309) styleMask:CPTitledWindowMask | CPResizableWindowMask];
-                [CPApp runModalForWindow:reportWindow];
+                
+                [self startFeedbackProcess];
                 break;
     }
 }
 
 @end
+
+
+
+
+
+
+
+
 
 
 @implementation LPCrashReporterOverlayWindow : CPWindow
@@ -155,6 +171,9 @@ var sharedErrorLoggerInstance = nil;
         informationLabel = [CPTextField labelWithTitle:@"Problem and system information:"];
         [informationLabel setFrameOrigin:CGPointMake(12,12)];
         [contentView addSubview:informationLabel];
+
+        
+        //	TODO: Check if there’s an execption, or if we simply want to file some feedback        
         
         var informationTextValue = [CPString stringWithFormat:@"User-Agent: %@\n\nException: %@",
                                                               navigator.userAgent, [[LPCrashReporter sharedErrorLogger] exception]];
