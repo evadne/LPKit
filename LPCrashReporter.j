@@ -65,9 +65,13 @@ var sharedErrorLoggerInstance = nil;
         var alert = [[CPAlert alloc] init];
         [alert setDelegate:self];
         [alert setAlertStyle:CPCriticalAlertStyle];
+        [alert setWindowStyle:CPHUDBackgroundWindowMask];
+        
+        [alert addButtonWithTitle:@"Report…"];
         [alert addButtonWithTitle:@"Reload"];
-        [alert addButtonWithTitle:@"Report..."];
-        [alert setMessageText:[CPString stringWithFormat:@"The application %@ crashed unexpectedly. Click Reload to load the application again or click Report to send a report to the developer.",
+        
+        [alert setTitle:@"Aw, Snap!"];
+        [alert setMessageText:[CPString stringWithFormat:@"Sorry but %@ crashed unexpectedly. Please help us fix it by clicking Report, or simply Reload the application.",
                                                          [[CPBundle mainBundle] objectForInfoDictionaryKey:@"CPBundleName"]]];
         [alert runModal];
     }
@@ -89,13 +93,15 @@ var sharedErrorLoggerInstance = nil;
 
 - (void)alertDidEnd:(CPAlert)anAlert returnCode:(id)returnCode
 {   
+
+    //	Todo: fix this portion so it works nicely with the “thanks!” alert too.
     switch(returnCode)
     {
-        case 0: // Reload application
+        case 1: // Reload application
                 location.reload();
-                break;
+	        break;
         
-        case 1: // Send report
+        case 0: // Send report
                 var reportWindow = [[LPCrashReporterReportWindow alloc] initWithContentRect:CGRectMake(0,0,460,309) styleMask:CPTitledWindowMask | CPResizableWindowMask];
                 [CPApp runModalForWindow:reportWindow];
                 break;
@@ -114,7 +120,7 @@ var sharedErrorLoggerInstance = nil;
 {
     if (self = [super initWithContentRect:aContentRect styleMask:aStyleMask])
     {
-        [[self contentView] setBackgroundColor:[CPColor colorWithWhite:0 alpha:0.4]];
+        [[self contentView] setBackgroundColor:[CPColor colorWithWhite:0 alpha:0.75]];
     }
     return self;
 }
@@ -167,7 +173,7 @@ var sharedErrorLoggerInstance = nil;
         [descriptionTextField setAutoresizingMask:CPViewWidthSizable | CPViewHeightSizable];
         [contentView addSubview:descriptionTextField];
         
-        sendButton = [CPButton buttonWithTitle:[CPString stringWithFormat:@"Send to %@", applicationName]];
+        sendButton = [CPButton buttonWithTitle:@"Submit"];
         [sendButton setFrameOrigin:CGPointMake(CGRectGetWidth(aContentRect) - CGRectGetWidth([sendButton frame]) - 15, 270)];
         [sendButton setAutoresizingMask:CPViewMinXMargin | CPViewMinYMargin];
         [sendButton setTarget:self];
@@ -175,14 +181,14 @@ var sharedErrorLoggerInstance = nil;
         [contentView addSubview:sendButton];
         [self setDefaultButton:sendButton];
         
-        cancelButton = [CPButton buttonWithTitle:@"Cancel"];
+/*        cancelButton = [CPButton buttonWithTitle:@"Cancel"];
         [cancelButton setFrameOrigin:CGPointMake(CGRectGetMinX([sendButton frame]) - CGRectGetWidth([cancelButton frame]) - 12, CGRectGetMinY([sendButton frame]))];
         [cancelButton setAutoresizingMask:CPViewMinXMargin | CPViewMinYMargin];
         [cancelButton setTarget:self];
         [cancelButton setAction:@selector(didClickCancelButton:)];
-        [contentView addSubview:cancelButton];
+        [contentView addSubview:cancelButton];	*/
         
-        sendingLabel = [CPTextField labelWithTitle:@"Sending Report..."];
+        sendingLabel = [CPTextField labelWithTitle:@"Sending…"];
         [sendingLabel setFont:[CPFont boldSystemFontOfSize:11]];
         [sendingLabel sizeToFit];
         [sendingLabel setFrameOrigin:CGPointMake(12, CGRectGetMaxY(aContentRect) - 35)];
@@ -190,6 +196,9 @@ var sharedErrorLoggerInstance = nil;
         [contentView addSubview:sendingLabel];
     
     }
+    
+    [self setLevel:CPScreenSaverWindowLevel];
+    
     return self;
 }
 
@@ -233,6 +242,7 @@ var sharedErrorLoggerInstance = nil;
 
 - (void)connection:(CPURLConnection)aConnection didReceiveData:(id)aData
 {
+
     [CPApp stopModal];
     [self orderOut:nil];
     
@@ -241,7 +251,8 @@ var sharedErrorLoggerInstance = nil;
     [alert setAlertStyle:CPInformationalAlertStyle];
     [alert addButtonWithTitle:@"Thanks!"];
     [alert setMessageText:@"Your report has been sent."];
-    [alert runModal];
+    location.reload();
+    
 }
 
 @end
@@ -268,4 +279,3 @@ objj_msgSend = function()
         return nil;
     }
 }
-    //	Todo: fix this portion so it works nicely with the “thanks!” alert too.
