@@ -80,6 +80,7 @@ var CPTextFieldInputOwner = nil;
 
 - (void)layoutSubviews
 {
+
     [super layoutSubviews];
     
     
@@ -103,7 +104,7 @@ var CPTextFieldInputOwner = nil;
     DOMElement.style.color = [[self currentValueForThemeAttribute:@"text-color"] cssString];
     DOMElement.style.font = [[self currentValueForThemeAttribute:@"font"] cssString];
 
-    if ([self hasThemeState:CPTextFieldStatePlaceholder]) {
+    if ([self hasThemeState:CPTextFieldStatePlaceholder] && [self isEditable]) {
     
     	DOMElement.value = _placeholderString;
     
@@ -209,7 +210,10 @@ var CPTextFieldInputOwner = nil;
 - (CPString)stringValue
 {
 
-    if ([self hasThemeState:CPTextFieldStatePlaceholder]) return @"";
+    if ([self hasThemeState:CPTextFieldStatePlaceholder])
+    if (!_DOMTextareaElement)
+    return nil;
+
     return (!!_DOMTextareaElement) ? _DOMTextareaElement.value : @"";
 }
 
