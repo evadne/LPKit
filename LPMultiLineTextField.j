@@ -104,10 +104,12 @@ var CPTextFieldInputOwner = nil;
     DOMElement.style.color = [[self currentValueForThemeAttribute:@"text-color"] cssString];
     DOMElement.style.font = [[self currentValueForThemeAttribute:@"font"] cssString];
 
+//  We explicitly want a placeholder when the value is an empty string.
+
     if ([self hasThemeState:CPTextFieldStatePlaceholder]) {
     
     	DOMElement.value = [self placeholderString];
-    
+
     } else {
 
         DOMElement.value = [self stringValue];
@@ -219,13 +221,22 @@ var CPTextFieldInputOwner = nil;
 
 - (void)setObjectValue:(id)aValue
 {
-
     [super setObjectValue:aValue];
 
 	if (CPTextFieldInputOwner === self || [[self window] firstResponder] === self)
         [self _DOMTextareaElement].value = aValue;
 
     [self _updatePlaceholderState];
+}
+
+- (void) _setCurrentValueIsPlaceholder:(BOOL)isPlaceholder {
+
+//	Under certain circumstances, _originalPlaceholderString is empty.
+	if (!_originalPlaceholderString)
+	_originalPlaceholderString = [self placeholderString];
+
+	[super _setCurrentValueIsPlaceholder:isPlaceholder];
+
 }
 
 @end
